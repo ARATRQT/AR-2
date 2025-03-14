@@ -53,16 +53,18 @@
       input[type="number"], input[type="text"], select { width: 100%; }
       button { padding: 10px 16px; font-size: 0.9rem; }
     }
+    /* Button size adjustments */
     #playBtn, #replayBtn, #submitBtn {
       min-width: 120px;
       padding: 12px 20px;
     }
-    /* Mobile touch targets */
-    @media (max-width: 600px) {
-      #playBtn, #replayBtn, #submitBtn {
-        padding: 12px 16px;
-        margin: 8px 4px;
-      }
+    /* Extra styling for discounting game */
+    .discounting-form label {
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .discounting-form input {
+      margin-bottom: 15px;
     }
   </style>
 </head>
@@ -116,6 +118,33 @@
     <button id="beginTestBtn">Begin Test</button>
   </div>
   
+  <!-- Discounting Pre-Test Screen -->
+  <div id="discountingPre" class="container hidden">
+    <h2 id="discountingPreTitle"></h2>
+    <p id="discountingPreText"></p>
+    <form id="discountingPreForm" class="discounting-form">
+      <label for="pre1week">After 1 week:</label>
+      <input type="number" id="pre1week" name="pre1week" required placeholder="Enter amount" />
+      
+      <label for="pre2weeks">After 2 weeks:</label>
+      <input type="number" id="pre2weeks" name="pre2weeks" required placeholder="Enter amount" />
+      
+      <label for="pre1month">After 1 month:</label>
+      <input type="number" id="pre1month" name="pre1month" required placeholder="Enter amount" />
+      
+      <label for="pre3months">After 3 months:</label>
+      <input type="number" id="pre3months" name="pre3months" required placeholder="Enter amount" />
+      
+      <label for="pre1year">After 1 year:</label>
+      <input type="number" id="pre1year" name="pre1year" required placeholder="Enter amount" />
+      
+      <label for="pre5years">After 5 years:</label>
+      <input type="number" id="pre5years" name="pre5years" required placeholder="Enter amount" />
+      
+      <button type="submit" id="submitDiscountingPre">Continue</button>
+    </form>
+  </div>
+  
   <!-- Test Interface -->
   <div id="testContainer" class="container hidden">
     <div id="questionSection" class="question">
@@ -131,6 +160,33 @@
       </p>
       <button id="nextBtn" class="hidden"></button>
     </div>
+  </div>
+  
+  <!-- Discounting Post-Test Screen -->
+  <div id="discountingPost" class="container hidden">
+    <h2 id="discountingPostTitle"></h2>
+    <p id="discountingPostText"></p>
+    <form id="discountingPostForm" class="discounting-form">
+      <label for="post1week">After 1 week:</label>
+      <input type="number" id="post1week" name="post1week" required placeholder="Enter amount" />
+      
+      <label for="post2weeks">After 2 weeks:</label>
+      <input type="number" id="post2weeks" name="post2weeks" required placeholder="Enter amount" />
+      
+      <label for="post1month">After 1 month:</label>
+      <input type="number" id="post1month" name="post1month" required placeholder="Enter amount" />
+      
+      <label for="post3months">After 3 months:</label>
+      <input type="number" id="post3months" name="post3months" required placeholder="Enter amount" />
+      
+      <label for="post1year">After 1 year:</label>
+      <input type="number" id="post1year" name="post1year" required placeholder="Enter amount" />
+      
+      <label for="post5years">After 5 years:</label>
+      <input type="number" id="post5years" name="post5years" required placeholder="Enter amount" />
+      
+      <button type="submit" id="submitDiscountingPost">Continue</button>
+    </form>
   </div>
   
   <!-- First-Time Screen -->
@@ -158,12 +214,14 @@
   let hasCompletedInitialPlayback = false;
   let currentAudio = null;
   let currentQuestionIndex = 0;
-  let replayUsed = false; // ensures replay is allowed only once per question
+  let replayUsed = false; // one replay per question
 
   let demographics = {};
   let testResults = { answers: [] };
+  let discountingPre = {};  // responses for $1000
+  let discountingPost = {}; // responses for $2500
 
-  // 20 Questions with answer key
+  // 20 Arithmetic Questions with answer key
   const questions = [
     { audio: "audio/q1.mp3", correctAnswer: 60 },
     { audio: "audio/q2.mp3", correctAnswer: 14 },
@@ -187,7 +245,7 @@
     { audio: "audio/q20.mp3", correctAnswer: 17500 }
   ];
   
-  // Translation strings
+  // Translation strings (with playAudio and replayAudio)
   const translations = {
     en: {
       langTitle: "Select Language",
@@ -227,7 +285,7 @@
       submitDetails: "Отправить данные",
       instrTitle: "Инструкции",
       instrText: "Вы услышите каждый арифметический вопрос один раз. После первого воспроизведения начнется скрытый 30-секундный таймер. Повторное прослушивание не останавливает и не сбрасывает таймер.",
-      instrText2: "Вам запрещено использовать внешние приспособления (ручку, бумагу, калькулятор) или переключаться между вкладками. Тест должен занимать примерно 10 минут и проходить за один присест.",
+      instrText2: "Тест должен занимать примерно 10 минут и проходить за один присест.",
       instrText3: "Введите ответ и нажмите «Отправить ответ», затем — «Следующий вопрос» для продолжения.",
       instrText4: "Пожалуйста, используйте наушники и увеличьте громкость для лучшего восприятия.",
       instrText5: "(Обратите внимание: оставшееся время не отображается.)",
@@ -258,12 +316,19 @@
   const instructionsPage = document.getElementById("instructionsPage");
   const beginTestBtn = document.getElementById("beginTestBtn");
   
+  const discountingPre = document.getElementById("discountingPre");
+  const discountingPreForm = document.getElementById("discountingPreForm");
+  
   const testContainer = document.getElementById("testContainer");
   const qCounter = document.getElementById("qCounter");
+  const playBtn = document.getElementById("playBtn");
   const replayBtn = document.getElementById("replayBtn");
   const submitBtn = document.getElementById("submitBtn");
   const nextBtn = document.getElementById("nextBtn");
   const answerInput = document.getElementById("answerInput");
+  
+  const discountingPost = document.getElementById("discountingPost");
+  const discountingPostForm = document.getElementById("discountingPostForm");
   
   const firstTimeContainerEl = document.getElementById("firstTimeContainer");
   const firstTimeTitle = document.getElementById("firstTimeTitle");
@@ -314,6 +379,7 @@
     ageLabel.textContent = t.ageLabel;
     sexLabel.textContent = t.sexLabel;
     document.querySelector("#demoForm button[type='submit']").textContent = t.submitDetails;
+    
     instrTitle.textContent = t.instrTitle;
     instrTextEl.textContent = t.instrText;
     instrText2El.textContent = t.instrText2;
@@ -322,10 +388,18 @@
     instrText5El.textContent = t.instrText5;
     beginTestBtn.textContent = t.beginTest;
     
-    document.getElementById('playBtn').textContent = t.playAudio;
-    submitBtn.textContent = t.submitAnswer;
-    // The next button text is set later per question
+    // Discounting Pre-Test Screen texts
+    document.getElementById("discountingPreTitle").textContent = "Please complete the following";
+    document.getElementById("discountingPreText").innerHTML = "Imagine you are offered <strong>$1000</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
     
+    // Discounting Post-Test Screen texts
+    document.getElementById("discountingPostTitle").textContent = "Almost Done";
+    document.getElementById("discountingPostText").innerHTML = "Imagine you are offered <strong>$2500</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
+    
+    // Set Play/Repeat button texts and others
+    playBtn.textContent = t.playAudio;
+    replayBtn.textContent = t.replayAudio;
+    submitBtn.textContent = t.submitAnswer;
     answerLabelElem.textContent = t.answerLabel;
     resultsTitleElem.textContent = t.resultsTitle;
     thankYouMsgElem.textContent = t.thankYouMsg;
@@ -368,19 +442,33 @@
     instructionsPage.classList.remove("hidden");
   });
   
-  /* Instructions & Test Flow */
+  /* Instructions & Flow */
   beginTestBtn.addEventListener("click", () => {
     instructionsPage.classList.add("hidden");
+    discountingPre.classList.remove("hidden");
+  });
+  
+  /* Discounting Pre-Test Form */
+  discountingPreForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    discountingPre = {
+      "1week": document.getElementById("pre1week").value,
+      "2weeks": document.getElementById("pre2weeks").value,
+      "1month": document.getElementById("pre1month").value,
+      "3months": document.getElementById("pre3months").value,
+      "1year": document.getElementById("pre1year").value,
+      "5years": document.getElementById("pre5years").value
+    };
+    discountingPre.classList.add("hidden");
     testContainer.classList.remove("hidden");
     startQuestion();
   });
   
-  /* Global Replay Button Handler (only allows one replay per question) */
+  /* Global Replay Button Handler (one replay per question) */
   replayBtn.addEventListener("click", () => {
     if (currentAudio && !replayUsed) {
       replayUsed = true;
       replayBtn.disabled = true;
-      // Ensure the audio is fully reset:
       currentAudio.pause();
       currentAudio.currentTime = 0;
       currentAudio.load();
@@ -400,18 +488,20 @@
   });
   
   nextBtn.addEventListener("click", () => {
-    document.getElementById('playBtn').disabled = false;
+    // Re-enable Play button for next question
+    playBtn.disabled = false;
     replayBtn.disabled = true;
     submitBtn.disabled = true;
     answerInput.disabled = true;
     stopAudio();
     nextBtn.classList.add("hidden");
     currentQuestionIndex++;
-  
     if (currentQuestionIndex < questions.length) {
       startQuestion();
     } else {
-      showFirstTimeScreen();
+      // After arithmetic test, show discounting post-test form
+      testContainer.classList.add("hidden");
+      discountingPost.classList.remove("hidden");
     }
   });
   
@@ -425,9 +515,7 @@
     }
     
     const t = translations[selectedLanguage];
-    const playBtn = document.getElementById('playBtn');
-    
-    // Reset UI elements
+    // Reset UI elements for the test question
     playBtn.disabled = false;
     replayBtn.disabled = true;
     submitBtn.disabled = true;
@@ -435,13 +523,13 @@
     nextBtn.classList.add("hidden");
     answerInput.value = "";
     
-    // Set the replay button text (ensuring proper language on every question)
+    // Set replay button text
     replayBtn.textContent = t.replayAudio;
     
     // Update question counter
     qCounter.textContent = `${t.questionCounter} ${currentQuestionIndex + 1} ${t.ofWord} ${questions.length}`;
-  
-    // Initialize audio path (use language-specific file if not English)
+    
+    // Prepare audio path (use language-specific file if not English)
     const currentQ = questions[currentQuestionIndex];
     let audioPath = currentQ.audio;
     if (selectedLanguage !== "en") {
@@ -460,23 +548,23 @@
       });
     };
   
-    // Audio completion handler: after first playback, enable replay and answer submission, start timer.
+    // When audio finishes, enable replay and answer submission; start timer.
     const handleAudioEnd = () => {
       if (!hasCompletedInitialPlayback) {
         hasCompletedInitialPlayback = true;
         replayBtn.disabled = false;
         submitBtn.disabled = false;
         answerInput.disabled = false;
-        // Update replay button text to the correct translation
         replayBtn.textContent = t.replayAudio;
         startHiddenTimer();
       }
+      currentAudio.removeEventListener("ended", handleAudioEnd);
     };
   
     currentAudio.addEventListener('ended', handleAudioEnd);
   }
   
-  // Hidden 30-second timer
+  // Hidden 30-second timer for each question
   function startHiddenTimer() {
     let remaining = questionTime;
     timerInterval = setInterval(() => {
@@ -502,7 +590,6 @@
       correctAnswer: currentQ.correctAnswer,
       isCorrect: isCorrect
     });
-    // Set Next button text based on question count
     const t = translations[selectedLanguage];
     if (currentQuestionIndex === questions.length - 1) {
       nextBtn.textContent = t.showResults;
@@ -521,15 +608,27 @@
     }
   }
   
-  function showFirstTimeScreen() {
-    testContainer.classList.add("hidden");
+  /* Discounting Post-Test Form */
+  discountingPostForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    discountingPost = {
+      "1week": document.getElementById("post1week").value,
+      "2weeks": document.getElementById("post2weeks").value,
+      "1month": document.getElementById("post1month").value,
+      "3months": document.getElementById("post3months").value,
+      "1year": document.getElementById("post1year").value,
+      "5years": document.getElementById("post5years").value
+    };
+    discountingPost.classList.add("hidden");
     firstTimeContainerEl.classList.remove("hidden");
-  }
+  });
   
+  /* First-Time Screen Handlers */
   firstTimeYes.addEventListener("click", () => {
     demographics.firstTime = "yes";
     showResults();
   });
+  
   firstTimeNo.addEventListener("click", () => {
     demographics.firstTime = "no";
     showResults();
@@ -545,6 +644,8 @@
     
     const finalData = {
       demographics: demographics,
+      discountingPre: discountingPre,
+      discountingPost: discountingPost,
       answers: testResults.answers,
       score: score,
       timestamp: new Date().toISOString()
