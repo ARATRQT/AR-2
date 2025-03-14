@@ -85,7 +85,7 @@
       <input type="number" id="age" name="age" min="1" required />
       <label for="sex" id="sexLabel">Sex:</label>
       <select id="sex" name="sex" required>
-        <option value="">{{sexOption1}}</option>
+        <option value=""></option>
       </select>
       <label for="additionalData" id="additionalDataLabel">Additional Data (optional):</label>
       <input type="text" id="additionalData" name="additionalData" placeholder="Any additional information" />
@@ -206,14 +206,13 @@
   let hasCompletedInitialPlayback = false;
   let currentAudio = null;
   let currentQuestionIndex = 0;
-  let replayUsed = false; // one replay per question
+  let replayUsed = false;
 
   let demographics = {};
   let testResults = { answers: [] };
-  let discountingPre = {};  // responses for $1000
-  let discountingPost = {}; // responses for $2500
+  let discountingPreData = {};
+  let discountingPostData = {};
 
-  // 20 Arithmetic Questions with answer key
   const questions = [
     { audio: "audio/q1.mp3", correctAnswer: 60 },
     { audio: "audio/q2.mp3", correctAnswer: 14 },
@@ -236,8 +235,7 @@
     { audio: "audio/q19.mp3", correctAnswer: 111 },
     { audio: "audio/q20.mp3", correctAnswer: 17500 }
   ];
-  
-  // Translation strings (with playAudio and replayAudio)
+
   const translations = {
     en: {
       langTitle: "Select Language",
@@ -296,21 +294,17 @@
       additionalDataLabel: "Дополнительные данные (необязательно):"
     }
   };
-  
-  /* DOM Element References */
+
+  /* DOM Elements */
   const languageSelection = document.getElementById("languageSelection");
   const btnEnglish = document.getElementById("btnEnglish");
   const btnRussian = document.getElementById("btnRussian");
-  
   const demographicsDiv = document.getElementById("demographics");
   const demoForm = document.getElementById("demoForm");
-  
   const instructionsPage = document.getElementById("instructionsPage");
   const beginTestBtn = document.getElementById("beginTestBtn");
-  
-  const discountingPre = document.getElementById("discountingPre");
+  const discountingPreDiv = document.getElementById("discountingPre");
   const discountingPreForm = document.getElementById("discountingPreForm");
-  
   const testContainer = document.getElementById("testContainer");
   const qCounter = document.getElementById("qCounter");
   const playBtn = document.getElementById("playBtn");
@@ -318,132 +312,92 @@
   const submitBtn = document.getElementById("submitBtn");
   const nextBtn = document.getElementById("nextBtn");
   const answerInput = document.getElementById("answerInput");
-  
-  const discountingPost = document.getElementById("discountingPost");
+  const discountingPostDiv = document.getElementById("discountingPost");
   const discountingPostForm = document.getElementById("discountingPostForm");
-  
   const firstTimeContainerEl = document.getElementById("firstTimeContainer");
-  const firstTimeTitle = document.getElementById("firstTimeTitle");
-  const firstTimeText = document.getElementById("firstTimeText");
-  const firstTimeYes = document.getElementById("firstTimeYes");
-  const firstTimeNo = document.getElementById("firstTimeNo");
-  
   const resultContainer = document.getElementById("resultContainer");
   const scoreDisplay = document.getElementById("scoreDisplay");
   const thankYouMsgElem = document.getElementById("thankYouMsg");
-  
-  const langTitle = document.getElementById("langTitle");
-  const demoTitle = document.getElementById("demoTitle");
-  const nameLabel = document.getElementById("nameLabel");
-  const ageLabel = document.getElementById("ageLabel");
-  const sexLabel = document.getElementById("sexLabel");
-  const instrTitle = document.getElementById("instrTitle");
-  const instrTextEl = document.getElementById("instrText");
-  const instrText2El = document.getElementById("instrText2");
-  const instrText3El = document.getElementById("instrText3");
-  const instrText4El = document.getElementById("instrText4");
-  const instrText5El = document.getElementById("instrText5");
-  const answerLabelElem = document.getElementById("answerLabel");
-  const resultsTitleElem = document.getElementById("resultsTitle");
-  
-  /* Language Selection Handlers */
-  btnEnglish.addEventListener("click", () => {
-    selectedLanguage = "en";
+
+  /* Event Listeners */
+  btnEnglish.addEventListener("click", () => handleLanguageSelect("en"));
+  btnRussian.addEventListener("click", () => handleLanguageSelect("ru"));
+  demoForm.addEventListener("submit", handleDemographicsSubmit);
+  beginTestBtn.addEventListener("click", () => {
+    instructionsPage.classList.add("hidden");
+    discountingPreDiv.classList.remove("hidden");
+  });
+  discountingPreForm.addEventListener("submit", handleDiscountingPreSubmit);
+  discountingPostForm.addEventListener("submit", handleDiscountingPostSubmit);
+  playBtn.addEventListener("click", handlePlayAudio);
+  replayBtn.addEventListener("click", handleReplay);
+  submitBtn.addEventListener("click", handleSubmitAnswer);
+  nextBtn.addEventListener("click", handleNextQuestion);
+  firstTimeYes.addEventListener("click", () => handleFirstTimeResponse("yes"));
+  firstTimeNo.addEventListener("click", () => handleFirstTimeResponse("no"));
+
+  /* Core Functions */
+  function handleLanguageSelect(lang) {
+    selectedLanguage = lang;
     applyTranslations();
     languageSelection.classList.add("hidden");
     demographicsDiv.classList.remove("hidden");
-    populateSexOptions(translations.en.sexOptions);
-  });
-  
-  btnRussian.addEventListener("click", () => {
-    selectedLanguage = "ru";
-    applyTranslations();
-    languageSelection.classList.add("hidden");
-    demographicsDiv.classList.remove("hidden");
-    populateSexOptions(translations.ru.sexOptions);
-  });
-  
+    populateSexOptions(translations[lang].sexOptions);
+  }
+
   function applyTranslations() {
     const t = translations[selectedLanguage];
-    langTitle.textContent = t.langTitle;
-    demoTitle.textContent = t.demoTitle;
-    nameLabel.textContent = t.nameLabel;
-    ageLabel.textContent = t.ageLabel;
-    sexLabel.textContent = t.sexLabel;
-    document.querySelector("#demoForm button[type='submit']").textContent = t.submitDetails;
-    
-    instrTitle.textContent = t.instrTitle;
-    instrTextEl.textContent = t.instrText;
-    instrText2El.textContent = t.instrText2;
-    instrText3El.textContent = t.instrText3;
-    instrText4El.innerHTML = "<strong>" + t.instrText4 + "</strong>";
-    instrText5El.textContent = t.instrText5;
+    document.getElementById("langTitle").textContent = t.langTitle;
+    document.getElementById("demoTitle").textContent = t.demoTitle;
+    document.getElementById("nameLabel").textContent = t.nameLabel;
+    document.getElementById("ageLabel").textContent = t.ageLabel;
+    document.getElementById("sexLabel").textContent = t.sexLabel;
+    document.getElementById("submitDetails").textContent = t.submitDetails;
+    document.getElementById("instrTitle").textContent = t.instrTitle;
+    document.getElementById("instrText").textContent = t.instrText;
+    document.getElementById("instrText2").textContent = t.instrText2;
+    document.getElementById("instrText3").textContent = t.instrText3;
+    document.getElementById("instrText4").innerHTML = `<strong>${t.instrText4}</strong>`;
+    document.getElementById("instrText5").textContent = t.instrText5;
     beginTestBtn.textContent = t.beginTest;
-    
-    // Discounting Pre-Test texts
-    document.getElementById("discountingPreTitle").textContent = "Please complete the following";
-    document.getElementById("discountingPreText").innerHTML = "Imagine you are offered <strong>$1000</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
-    
-    // Discounting Post-Test texts
-    document.getElementById("discountingPostTitle").textContent = "Almost Done";
-    document.getElementById("discountingPostText").innerHTML = "Imagine you are offered <strong>$2500</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
-    
     playBtn.textContent = t.playAudio;
     replayBtn.textContent = t.replayAudio;
     submitBtn.textContent = t.submitAnswer;
-    answerLabelElem.textContent = t.answerLabel;
-    resultsTitleElem.textContent = t.resultsTitle;
+    document.getElementById("answerLabel").textContent = t.answerLabel;
+    document.getElementById("resultsTitle").textContent = t.resultsTitle;
     thankYouMsgElem.textContent = t.thankYouMsg;
-    
-    // First-time screen texts
-    firstTimeTitle.textContent = t.resultsTitle;
-    if (selectedLanguage === "ru") {
-      firstTimeText.textContent = "Это ваш первый раз, когда вы проходите этот тест?";
-      firstTimeYes.textContent = "Да";
-      firstTimeNo.textContent = "Нет";
-    } else {
-      firstTimeText.textContent = "Is this your first time taking this test?";
-      firstTimeYes.textContent = "Yes";
-      firstTimeNo.textContent = "No";
-    }
-    const additionalDataLabel = document.getElementById("additionalDataLabel");
-    if (additionalDataLabel) additionalDataLabel.textContent = t.additionalDataLabel;
+    document.getElementById("additionalDataLabel").textContent = t.additionalDataLabel;
+    document.getElementById("firstTimeTitle").textContent = t.resultsTitle;
+    document.getElementById("firstTimeText").textContent = selectedLanguage === "ru" 
+      ? "Это ваш первый раз, когда вы проходите этот тест?" 
+      : "Is this your first time taking this test?";
+    firstTimeYes.textContent = selectedLanguage === "ru" ? "Да" : "Yes";
+    firstTimeNo.textContent = selectedLanguage === "ru" ? "Нет" : "No";
   }
-  
-  function populateSexOptions(optionsArray) {
-    const selectElem = document.getElementById("sex");
-    selectElem.innerHTML = "";
-    optionsArray.forEach(opt => {
-      const option = document.createElement("option");
-      option.value = (opt === optionsArray[0]) ? "" : opt;
-      option.textContent = opt;
-      selectElem.appendChild(option);
-    });
+
+  function populateSexOptions(options) {
+    const select = document.getElementById("sex");
+    select.innerHTML = options.map(opt => 
+      `<option value="${opt === options[0] ? "" : opt}">${opt}</option>`
+    ).join("");
   }
-  
-  /* Demographics Form Handler */
-  demoForm.addEventListener("submit", (e) => {
+
+  function handleDemographicsSubmit(e) {
     e.preventDefault();
-    demographics.name = document.getElementById("name").value.trim();
-    demographics.age = document.getElementById("age").value;
-    demographics.sex = document.getElementById("sex").value;
-    demographics.additionalData = document.getElementById("additionalData").value.trim();
-    demographics.language = selectedLanguage;
+    demographics = {
+      name: document.getElementById("name").value.trim(),
+      age: document.getElementById("age").value,
+      sex: document.getElementById("sex").value,
+      additionalData: document.getElementById("additionalData").value.trim(),
+      language: selectedLanguage
+    };
     demographicsDiv.classList.add("hidden");
     instructionsPage.classList.remove("hidden");
-  });
-  
-  /* Instructions & Flow */
-  beginTestBtn.addEventListener("click", () => {
-    instructionsPage.classList.add("hidden");
-    // Show discounting pre-test (for $1000) before arithmetic test
-    discountingPre.classList.remove("hidden");
-  });
-  
-  /* Discounting Pre-Test Form Handler */
-  discountingPreForm.addEventListener("submit", (e) => {
+  }
+
+  function handleDiscountingPreSubmit(e) {
     e.preventDefault();
-    discountingPre = {
+    discountingPreData = {
       "1week": document.getElementById("pre1week").value,
       "2weeks": document.getElementById("pre2weeks").value,
       "1month": document.getElementById("pre1month").value,
@@ -451,154 +405,14 @@
       "1year": document.getElementById("pre1year").value,
       "5years": document.getElementById("pre5years").value
     };
-    discountingPre.classList.add("hidden");
+    discountingPreDiv.classList.add("hidden");
     testContainer.classList.remove("hidden");
     startQuestion();
-  });
-  
-  /* Global Replay Button Handler (one replay per question) */
-  replayBtn.addEventListener("click", () => {
-    if (currentAudio && !replayUsed) {
-      replayUsed = true;
-      replayBtn.disabled = true;
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      currentAudio.load();
-      currentAudio.play().catch(error => {
-        console.error("Playback failed:", error);
-        replayBtn.disabled = false;
-      });
-    }
-  });
-  
-  submitBtn.addEventListener("click", () => {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-    recordAnswer();
-  });
-  
-  nextBtn.addEventListener("click", () => {
-    playBtn.disabled = false;
-    replayBtn.disabled = true;
-    submitBtn.disabled = true;
-    answerInput.disabled = true;
-    stopAudio();
-    nextBtn.classList.add("hidden");
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-      startQuestion();
-    } else {
-      // After arithmetic test, show discounting post-test (for $2500)
-      testContainer.classList.add("hidden");
-      discountingPost.classList.remove("hidden");
-    }
-  });
-  
-  /* Test Functions */
-  function startQuestion() {
-    hasCompletedInitialPlayback = false;
-    replayUsed = false;
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-    
-    const t = translations[selectedLanguage];
-    // Reset UI elements for the test question
-    playBtn.disabled = false;
-    replayBtn.disabled = true;
-    submitBtn.disabled = true;
-    answerInput.disabled = true;
-    nextBtn.classList.add("hidden");
-    answerInput.value = "";
-    
-    // Set replay button text
-    replayBtn.textContent = t.replayAudio;
-    
-    // Update question counter
-    qCounter.textContent = `${t.questionCounter} ${currentQuestionIndex + 1} ${t.ofWord} ${questions.length}`;
-    
-    // Prepare audio path (language-specific if needed)
-    const currentQ = questions[currentQuestionIndex];
-    let audioPath = currentQ.audio;
-    if (selectedLanguage !== "en") {
-      audioPath = audioPath.replace(".mp3", "r.mp3");
-    }
-    
-    stopAudio();
-    currentAudio = new Audio(audioPath);
-    
-    // Set up Play button handler for initial playback (no auto-play)
-    playBtn.onclick = () => {
-      currentAudio.play().then(() => {
-        playBtn.disabled = true;
-      }).catch(error => {
-        console.error("Playback failed:", error);
-      });
-    };
-    
-    // When audio ends, enable replay and answer input, start timer.
-    const handleAudioEnd = () => {
-      if (!hasCompletedInitialPlayback) {
-        hasCompletedInitialPlayback = true;
-        replayBtn.disabled = false;
-        submitBtn.disabled = false;
-        answerInput.disabled = false;
-        replayBtn.textContent = t.replayAudio;
-        startHiddenTimer();
-      }
-      currentAudio.removeEventListener("ended", handleAudioEnd);
-    };
-    
-    currentAudio.addEventListener("ended", handleAudioEnd);
   }
-  
-  // Hidden 30-second timer
-  function startHiddenTimer() {
-    let remaining = questionTime;
-    timerInterval = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        recordAnswer();
-      }
-    }, 1000);
-  }
-  
-  function recordAnswer() {
-    answerInput.disabled = true;
-    submitBtn.disabled = true;
-    let userAnswer = answerInput.value.trim();
-    userAnswer = userAnswer === "" ? null : Number(userAnswer);
-    const currentQ = questions[currentQuestionIndex];
-    const isCorrect = (userAnswer !== null && userAnswer === currentQ.correctAnswer);
-    testResults.answers.push({
-      questionNumber: currentQuestionIndex + 1,
-      givenAnswer: userAnswer,
-      correctAnswer: currentQ.correctAnswer,
-      isCorrect: isCorrect
-    });
-    const t = translations[selectedLanguage];
-    nextBtn.textContent = (currentQuestionIndex === questions.length - 1) ? t.showResults : t.nextQuestion;
-    nextBtn.classList.remove("hidden");
-  }
-  
-  // Stop audio playback
-  function stopAudio() {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      currentAudio = null;
-    }
-  }
-  
-  /* Discounting Post-Test Form Handler */
-  discountingPostForm.addEventListener("submit", (e) => {
+
+  function handleDiscountingPostSubmit(e) {
     e.preventDefault();
-    discountingPost = {
+    discountingPostData = {
       "1week": document.getElementById("post1week").value,
       "2weeks": document.getElementById("post2weeks").value,
       "1month": document.getElementById("post1month").value,
@@ -606,50 +420,127 @@
       "1year": document.getElementById("post1year").value,
       "5years": document.getElementById("post5years").value
     };
-    discountingPost.classList.add("hidden");
+    discountingPostDiv.classList.add("hidden");
     firstTimeContainerEl.classList.remove("hidden");
-  });
-  
-  /* First-Time Screen Handlers */
-  firstTimeYes.addEventListener("click", () => {
-    demographics.firstTime = "yes";
-    showResults();
-  });
-  
-  firstTimeNo.addEventListener("click", () => {
-    demographics.firstTime = "no";
-    showResults();
-  });
-  
-  function showResults() {
+  }
+
+  function handlePlayAudio() {
+    const currentQ = questions[currentQuestionIndex];
+    const audioPath = selectedLanguage === "en" ? currentQ.audio : currentQ.audio.replace(".mp3", "r.mp3");
     stopAudio();
+    currentAudio = new Audio(audioPath);
+    currentAudio.play()
+      .then(() => {
+        playBtn.disabled = true;
+        currentAudio.addEventListener("ended", () => {
+          replayBtn.disabled = false;
+          submitBtn.disabled = false;
+          answerInput.disabled = false;
+          startHiddenTimer();
+        });
+      })
+      .catch(err => console.error("Audio playback failed:", err));
+  }
+
+  function handleReplay() {
+    if (!currentAudio || replayUsed) return;
+    replayUsed = true;
+    replayBtn.disabled = true;
+    currentAudio.currentTime = 0;
+    currentAudio.play();
+  }
+
+  function handleSubmitAnswer() {
+    clearInterval(timerInterval);
+    const userAnswer = parseInt(answerInput.value) || null;
+    const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+    testResults.answers.push({
+      questionNumber: currentQuestionIndex + 1,
+      givenAnswer: userAnswer,
+      correctAnswer: correctAnswer,
+      isCorrect: userAnswer === correctAnswer
+    });
+    nextBtn.classList.remove("hidden");
+    nextBtn.textContent = currentQuestionIndex === questions.length - 1 
+      ? translations[selectedLanguage].showResults 
+      : translations[selectedLanguage].nextQuestion;
+  }
+
+  function handleNextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      resetQuestionUI();
+      startQuestion();
+    } else {
+      testContainer.classList.add("hidden");
+      discountingPostDiv.classList.remove("hidden");
+    }
+  }
+
+  function handleFirstTimeResponse(response) {
+    demographics.firstTime = response;
+    showResults();
+  }
+
+  /* Utility Functions */
+  function startHiddenTimer() {
+    let remaining = questionTime;
+    timerInterval = setInterval(() => {
+      if (--remaining <= 0) {
+        clearInterval(timerInterval);
+        handleSubmitAnswer();
+      }
+    }, 1000);
+  }
+
+  function resetQuestionUI() {
+    playBtn.disabled = false;
+    replayBtn.disabled = true;
+    submitBtn.disabled = true;
+    answerInput.disabled = true;
+    nextBtn.classList.add("hidden");
+    answerInput.value = "";
+    replayUsed = false;
+    qCounter.textContent = `${translations[selectedLanguage].questionCounter} ${currentQuestionIndex + 1} ${translations[selectedLanguage].ofWord} ${questions.length}`;
+  }
+
+  function stopAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+    }
+  }
+
+  function showResults() {
+    const score = testResults.answers.filter(a => a.isCorrect).length;
+    scoreDisplay.textContent = `${score} ${translations[selectedLanguage].ofWord} ${questions.length}`;
     firstTimeContainerEl.classList.add("hidden");
-    const score = testResults.answers.reduce((acc, curr) => acc + (curr.isCorrect ? 1 : 0), 0);
-    const t = translations[selectedLanguage];
-    scoreDisplay.textContent = `${score} ${t.ofWord} ${questions.length}`;
     resultContainer.classList.remove("hidden");
     
     const finalData = {
       demographics: demographics,
-      discountingPre: discountingPre,
-      discountingPost: discountingPost,
+      discountingPre: discountingPreData,
+      discountingPost: discountingPostData,
       answers: testResults.answers,
       score: score,
       timestamp: new Date().toISOString()
     };
     sendData(finalData);
   }
-  
+
   function sendData(data) {
     fetch(googleScriptURL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
-    })
-    .then(() => console.log("Data sent successfully!"))
-    .catch((error) => console.error("Error sending data:", error));
+    }).catch(err => console.error("Data submission error:", err));
   }
+
+  /* Initial Setup */
+  applyTranslations();
+  populateSexOptions(translations.en.sexOptions);
 </script>
 </body>
 </html>
