@@ -17,9 +17,9 @@
     }
     main { max-width: 800px; margin: 0 auto; padding: 20px; }
     .container {
-      background-color: #f9f9f9; 
+      background-color: #f9f9f9;
       border-radius: 10px;
-      padding: 20px; 
+      padding: 20px;
       margin-bottom: 20px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
@@ -56,138 +56,545 @@
       margin: 0 auto 25px auto;
       line-height: 1.5;
     }
+    .time-label { margin-bottom: 5px; }
   </style>
 </head>
 <body>
 <main>
-  <!-- Language Selection -->
+  <!-- 1. Language Selection -->
   <div id="languageSelection" class="container">
     <h2 id="langTitle">Select Language</h2>
     <button id="btnEnglish">English</button>
     <button id="btnRussian">Русский</button>
-    <!-- Other languages disabled -->
+    <button id="btnTurkish" class="lang-btn" disabled>Türkçe <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnFrench" class="lang-btn" disabled>Français <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnItalian" class="lang-btn" disabled>Italiano <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnSpanish" class="lang-btn" disabled>Español <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnHindi" class="lang-btn" disabled>हिन्दी <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnChinese" class="lang-btn" disabled>中文 <span class="coming-soon">(Coming soon!)</span></button>
   </div>
 
-  <!-- Demographics -->
+  <!-- 2. Demographics -->
   <div id="demographics" class="container hidden">
-    <!-- Demographics form unchanged -->
+    <h2 id="demoTitle">Please enter your details</h2>
+    <form id="demoForm">
+      <label for="name" id="nameLabel">Name (optional):</label>
+      <input type="text" id="name" name="name" placeholder="Your name" />
+      <label for="age" id="ageLabel">Age:</label>
+      <input type="number" id="age" name="age" min="1" required />
+      <label for="sex" id="sexLabel">Sex:</label>
+      <select id="sex" name="sex" required>
+        <option value=""></option>
+      </select>
+      <label for="additionalData" id="additionalDataLabel">Additional Data (optional):</label>
+      <input type="text" id="additionalData" name="additionalData" placeholder="Any additional information" />
+      <button type="submit" id="submitDetails">Submit Details</button>
+    </form>
   </div>
 
-  <!-- Instructions -->
+  <!-- 3. Instructions -->
   <div id="instructionsPage" class="container hidden">
-    <!-- Instructions content unchanged -->
+    <h2 id="instrTitle">Instructions</h2>
+    <p id="instrText">
+      You are not allowed to use any external aids (pen, paper, calculator) or switch tabs. All correct answers are a natural number. Do not use any non-digit symbols in your answers. You will hear each arithmetic question once. After the first playback, a hidden 30‑second timer will start. Replaying the audio will not pause or reset the timer.
+    </p>
+    <p id="instrText2">
+      The test should take around 10 minutes and must be completed in one sitting.
+    </p>
+    <p id="instrText3">
+      Enter your answer and click "Submit Answer" when ready, then click "Next Question" to continue.
+    </p>
+    <p id="instrText4"><strong>Please use headphones and set your volume high for the best experience.</strong></p>
+    <p id="instrText5">(Note: The remaining time is not displayed.)</p>
+    <button id="beginTestBtn">Begin Test</button>
   </div>
 
-  <!-- Pre-Test Discounting ($1000) -->
+  <!-- 4. Pre-Test Discounting ($1000) -->
   <div id="discountingPre" class="container hidden">
     <h2 id="discountingPreTitle"></h2>
     <div class="discount-header">
       <p id="discountingPreText" class="discount-instructions"></p>
     </div>
     <form id="discountingPreForm" class="discounting-form">
-      <label for="pre1week" id="pre1weekLabel">After 1 week:</label>
-      <input type="number" id="pre1week" name="pre1week" required placeholder="Enter amount" />
-      
-      <label for="pre2weeks" id="pre2weeksLabel">After 2 weeks:</label>
-      <input type="number" id="pre2weeks" name="pre2weeks" required placeholder="Enter amount" />
-      
-      <label for="pre1month" id="pre1monthLabel">After 1 month:</label>
-      <input type="number" id="pre1month" name="pre1month" required placeholder="Enter amount" />
-      
-      <label for="pre3months" id="pre3monthsLabel">After 3 months:</label>
-      <input type="number" id="pre3months" name="pre3months" required placeholder="Enter amount" />
-      
-      <label for="pre1year" id="pre1yearLabel">After 1 year:</label>
-      <input type="number" id="pre1year" name="pre1year" required placeholder="Enter amount" />
-      
-      <label for="pre5years" id="pre5yearsLabel">After 5 years:</label>
-      <input type="number" id="pre5years" name="pre5years" required placeholder="Enter amount" />
-      
+      <div class="time-group">
+        <label for="pre1week" id="pre1weekLabel" class="time-label"></label>
+        <input type="number" id="pre1week" name="pre1week" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="pre2weeks" id="pre2weeksLabel" class="time-label"></label>
+        <input type="number" id="pre2weeks" name="pre2weeks" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="pre1month" id="pre1monthLabel" class="time-label"></label>
+        <input type="number" id="pre1month" name="pre1month" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="pre3months" id="pre3monthsLabel" class="time-label"></label>
+        <input type="number" id="pre3months" name="pre3months" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="pre1year" id="pre1yearLabel" class="time-label"></label>
+        <input type="number" id="pre1year" name="pre1year" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="pre5years" id="pre5yearsLabel" class="time-label"></label>
+        <input type="number" id="pre5years" name="pre5years" required min="0" step="1" />
+      </div>
       <button type="submit" id="submitDiscountingPre">Continue</button>
     </form>
   </div>
 
-  <!-- Arithmetic Test -->
+  <!-- 5. Arithmetic Test -->
   <div id="testContainer" class="container hidden">
-    <!-- Test interface unchanged -->
+    <div id="questionSection" class="question">
+      <p id="qCounter" style="font-weight:600;"></p>
+      <div style="margin-bottom:10px;">
+        <button id="playBtn">Play Audio</button>
+        <button id="replayBtn" disabled>Repeat Audio</button>
+        <button id="submitBtn" disabled>Submit Answer</button>
+      </div>
+      <p>
+        <label for="answerInput" id="answerLabel">Your Answer:</label>
+        <input type="number" id="answerInput" disabled />
+      </p>
+      <button id="nextBtn" class="hidden"></button>
+    </div>
   </div>
 
-  <!-- Post-Test Discounting ($2500) -->
+  <!-- 6. Post-Test Discounting ($2500) -->
   <div id="discountingPost" class="container hidden">
     <h2 id="discountingPostTitle"></h2>
     <div class="discount-header">
       <p id="discountingPostText" class="discount-instructions"></p>
     </div>
     <form id="discountingPostForm" class="discounting-form">
-      <label for="post1week" id="post1weekLabel">After 1 week:</label>
-      <input type="number" id="post1week" name="post1week" required placeholder="Enter amount" />
-      
-      <!-- Other post-test fields same structure as pre-test -->
-      
+      <div class="time-group">
+        <label for="post1week" id="post1weekLabel" class="time-label"></label>
+        <input type="number" id="post1week" name="post1week" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="post2weeks" id="post2weeksLabel" class="time-label"></label>
+        <input type="number" id="post2weeks" name="post2weeks" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="post1month" id="post1monthLabel" class="time-label"></label>
+        <input type="number" id="post1month" name="post1month" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="post3months" id="post3monthsLabel" class="time-label"></label>
+        <input type="number" id="post3months" name="post3months" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="post1year" id="post1yearLabel" class="time-label"></label>
+        <input type="number" id="post1year" name="post1year" required min="0" step="1" />
+      </div>
+      <div class="time-group">
+        <label for="post5years" id="post5yearsLabel" class="time-label"></label>
+        <input type="number" id="post5years" name="post5years" required min="0" step="1" />
+      </div>
       <button type="submit" id="submitDiscountingPost">Continue</button>
     </form>
   </div>
 
-  <!-- Other sections unchanged -->
+  <!-- 7. First-Time Screen -->
+  <div id="firstTimeContainer" class="container hidden">
+    <h2 id="firstTimeTitle">Additional Information</h2>
+    <p id="firstTimeText">Is this your first time taking this test?</p>
+    <button id="firstTimeYes"></button>
+    <button id="firstTimeNo"></button>
+  </div>
+
+  <!-- 8. Results Screen -->
+  <div id="resultContainer" class="container hidden">
+    <h2 id="resultsTitle">Your Results</h2>
+    <p id="scoreDisplay"></p>
+    <p id="thankYouMsg"></p>
+  </div>
 </main>
 
 <script>
+  const googleScriptURL = "https://script.google.com/macros/s/AKfycbzMPeMupVjyPQCyBqwfwuIxWg5AnDSFkHOQj1Mw52mQgWmCMa-0LNs4i8ibxrJmSF0-cQ/exec";
+  let selectedLanguage = "en";
+  const questionTime = 30;
+  let timerInterval = null;
+  let currentAudio = null;
+  let currentQuestionIndex = 0;
+  let replayUsed = false;
+
+  let demographics = {};
+  let testResults = { answers: [] };
+  let discountingPreData = {};
+  let discountingPostData = {};
+
+  const questions = [
+    { audio: "audio/q1.mp3", correctAnswer: 60 },
+    { audio: "audio/q2.mp3", correctAnswer: 14 },
+    { audio: "audio/q3.mp3", correctAnswer: 22 },
+    { audio: "audio/q4.mp3", correctAnswer: 24 },
+    { audio: "audio/q5.mp3", correctAnswer: 8 },
+    { audio: "audio/q6.mp3", correctAnswer: 31 },
+    { audio: "audio/q7.mp3", correctAnswer: 21 },
+    { audio: "audio/q8.mp3", correctAnswer: 180 },
+    { audio: "audio/q9.mp3", correctAnswer: 20 },
+    { audio: "audio/q10.mp3", correctAnswer: 40 },
+    { audio: "audio/q11.mp3", correctAnswer: 35 },
+    { audio: "audio/q12.mp3", correctAnswer: 160 },
+    { audio: "audio/q13.mp3", correctAnswer: 63 },
+    { audio: "audio/q14.mp3", correctAnswer: 140 },
+    { audio: "audio/q15.mp3", correctAnswer: 378 },
+    { audio: "audio/q16.mp3", correctAnswer: 900 },
+    { audio: "audio/q17.mp3", correctAnswer: 662 },
+    { audio: "audio/q18.mp3", correctAnswer: 268 },
+    { audio: "audio/q19.mp3", correctAnswer: 111 },
+    { audio: "audio/q20.mp3", correctAnswer: 17500 }
+  ];
+
   const translations = {
     en: {
+      langTitle: "Select Language",
+      demoTitle: "Please enter your details",
+      nameLabel: "Name (optional):",
+      ageLabel: "Age:",
+      sexLabel: "Sex:",
+      sexOptions: ["--Select--", "Female", "Male", "Other"],
+      submitDetails: "Submit Details",
+      instrTitle: "Instructions",
+      instrText: "You are not allowed to use any external aids (pen, paper, calculator) or switch tabs. All correct answers are a natural number. Do not use any non-digit symbols in your answers. You will hear each arithmetic question once. After the first playback, a hidden 30‑second timer will start. Replaying the audio will not pause or reset the timer.",
+      instrText2: "The test should take around 10 minutes and must be completed in one sitting.",
+      instrText3: "Enter your answer and click \"Submit Answer\" when ready, then click \"Next Question\" to continue.",
+      instrText4: "Please use headphones and set your volume high for the best experience.",
+      instrText5: "(Note: The remaining time is not displayed.)",
+      beginTest: "Begin Test",
       discountPreTitle: "Financial Preferences Questionnaire",
       discountPreText: "If you were offered <strong>$1000 today</strong>, what is the minimum amount you would need to be offered at these future dates to consider waiting instead of taking the money now?",
       discountPostTitle: "Follow-up Financial Preferences",
       discountPostText: "If the amount available today was <strong>$2500</strong>, what minimum amounts would you need at these future dates to consider waiting?",
       timeLabels: ["1 week", "2 weeks", "1 month", "3 months", "1 year", "5 years"],
-      placeholders: {
-        discount: "Enter amount"
-      }
+      placeholders: { discount: "Enter amount" },
+      playAudio: "Play Audio",
+      replayAudio: "Repeat Audio",
+      submitAnswer: "Submit Answer",
+      nextQuestion: "Next Question",
+      showResults: "Show Results",
+      questionCounter: "Question",
+      answerLabel: "Your Answer:",
+      resultsTitle: "Your Results",
+      thankYouMsg: "Thank you for taking the test!",
+      resultLine: "Your result:",
+      ofWord: "of",
+      additionalDataLabel: "Additional Data (optional):",
+      firstTimeQuestion: "Is this your first time taking this test?",
+      firstTimeYes: "Yes",
+      firstTimeNo: "No"
     },
     ru: {
+      langTitle: "Выберите язык",
+      demoTitle: "Пожалуйста, введите ваши данные",
+      nameLabel: "Имя (необязательно):",
+      ageLabel: "Возраст:",
+      sexLabel: "Пол:",
+      sexOptions: ["--Выберите--", "Женский", "Мужской", "Другое"],
+      submitDetails: "Отправить данные",
+      instrTitle: "Инструкции",
+      instrText: "Вы услышите каждый арифметический вопрос один раз. После первого воспроизведения начнется скрытый 30-секундный таймер. Повторное прослушивание не останавливает и не сбрасывает таймер.",
+      instrText2: "Тест должен занимать примерно 10 минут и проходить за один присест.",
+      instrText3: "Введите ответ и нажмите «Отправить ответ», затем — «Следующий вопрос» для продолжения.",
+      instrText4: "Пожалуйста, используйте наушники и увеличьте громкость для лучшего восприятия.",
+      instrText5: "(Обратите внимание: оставшееся время не отображается.)",
+      beginTest: "Начать тест",
       discountPreTitle: "Опрос финансовых предпочтений",
       discountPreText: "Если бы вам предложили <strong>1000 долларов сегодня</strong>, какая минимальная сумма потребовалась бы вам через указанные сроки, чтобы вы согласились подождать вместо получения денег сейчас?",
       discountPostTitle: "Дополнительный опрос предпочтений",
       discountPostText: "Если бы доступная сегодня сумма составляла <strong>2500 долларов</strong>, какие минимальные суммы потребовались бы вам через указанные сроки для согласия на ожидание?",
       timeLabels: ["1 неделя", "2 недели", "1 месяц", "3 месяца", "1 год", "5 лет"],
-      placeholders: {
-        discount: "Введите сумму"
-      }
+      placeholders: { discount: "Введите сумму" },
+      playAudio: "Воспроизвести аудио",
+      replayAudio: "Повторить аудио",
+      submitAnswer: "Отправить ответ",
+      nextQuestion: "Следующий вопрос",
+      showResults: "Показать результаты",
+      questionCounter: "Вопрос",
+      answerLabel: "Ваш ответ:",
+      resultsTitle: "Ваши результаты",
+      thankYouMsg: "Спасибо за участие в тесте!",
+      resultLine: "Ваш результат:",
+      ofWord: "из",
+      additionalDataLabel: "Дополнительные данные (необязательно):",
+      firstTimeQuestion: "Это ваш первый раз, когда вы проходите этот тест?",
+      firstTimeYes: "Да",
+      firstTimeNo: "Нет"
     }
   };
 
-  // Enhanced translation handler
+  // DOM Elements
+  const languageSelection = document.getElementById("languageSelection");
+  const btnEnglish = document.getElementById("btnEnglish");
+  const btnRussian = document.getElementById("btnRussian");
+  const demographicsDiv = document.getElementById("demographics");
+  const demoForm = document.getElementById("demoForm");
+  const instructionsPage = document.getElementById("instructionsPage");
+  const beginTestBtn = document.getElementById("beginTestBtn");
+  const discountingPreDiv = document.getElementById("discountingPre");
+  const discountingPreForm = document.getElementById("discountingPreForm");
+  const testContainer = document.getElementById("testContainer");
+  const qCounter = document.getElementById("qCounter");
+  const playBtn = document.getElementById("playBtn");
+  const replayBtn = document.getElementById("replayBtn");
+  const submitBtn = document.getElementById("submitBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const answerInput = document.getElementById("answerInput");
+  const discountingPostDiv = document.getElementById("discountingPost");
+  const discountingPostForm = document.getElementById("discountingPostForm");
+  const firstTimeContainerEl = document.getElementById("firstTimeContainer");
+  const resultContainer = document.getElementById("resultContainer");
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  const thankYouMsgElem = document.getElementById("thankYouMsg");
+
+  // Event Listeners
+  btnEnglish.addEventListener("click", () => handleLanguageSelect("en"));
+  btnRussian.addEventListener("click", () => handleLanguageSelect("ru"));
+  demoForm.addEventListener("submit", handleDemographicsSubmit);
+  beginTestBtn.addEventListener("click", () => {
+    instructionsPage.classList.add("hidden");
+    discountingPreDiv.classList.remove("hidden");
+  });
+  discountingPreForm.addEventListener("submit", handleDiscountingPreSubmit);
+  discountingPostForm.addEventListener("submit", handleDiscountingPostSubmit);
+  playBtn.addEventListener("click", handlePlayAudio);
+  replayBtn.addEventListener("click", handleReplay);
+  submitBtn.addEventListener("click", handleSubmitAnswer);
+  nextBtn.addEventListener("click", handleNextQuestion);
+  document.getElementById("firstTimeYes").addEventListener("click", () => handleFirstTimeResponse("yes"));
+  document.getElementById("firstTimeNo").addEventListener("click", () => handleFirstTimeResponse("no"));
+
+  // Core Functions
+  function handleLanguageSelect(lang) {
+    selectedLanguage = lang;
+    applyTranslations();
+    languageSelection.classList.add("hidden");
+    demographicsDiv.classList.remove("hidden");
+    populateSexOptions(translations[lang].sexOptions);
+  }
+
   function applyTranslations() {
     const t = translations[selectedLanguage];
     
-    // Discounting Pre
+    // Main translations
+    document.getElementById("langTitle").textContent = t.langTitle;
+    document.getElementById("demoTitle").textContent = t.demoTitle;
+    document.getElementById("nameLabel").textContent = t.nameLabel;
+    document.getElementById("ageLabel").textContent = t.ageLabel;
+    document.getElementById("sexLabel").textContent = t.sexLabel;
+    document.getElementById("submitDetails").textContent = t.submitDetails;
+    document.getElementById("instrTitle").textContent = t.instrTitle;
+    document.getElementById("instrText").textContent = t.instrText;
+    document.getElementById("instrText2").textContent = t.instrText2;
+    document.getElementById("instrText3").textContent = t.instrText3;
+    document.getElementById("instrText4").innerHTML = `<strong>${t.instrText4}</strong>`;
+    document.getElementById("instrText5").textContent = t.instrText5;
+    beginTestBtn.textContent = t.beginTest;
+    
+    // Discounting forms
     document.getElementById("discountingPreTitle").innerHTML = t.discountPreTitle;
     document.getElementById("discountingPreText").innerHTML = t.discountPreText;
-    
-    // Discounting Post
     document.getElementById("discountingPostTitle").innerHTML = t.discountPostTitle;
     document.getElementById("discountingPostText").innerHTML = t.discountPostText;
 
-    // Update time labels and placeholders
-    const timeLabels = t.timeLabels;
-    ['pre1weekLabel', 'pre2weeksLabel', 'pre1monthLabel', 
-     'pre3monthsLabel', 'pre1yearLabel', 'pre5yearsLabel'].forEach((id, index) => {
-      document.getElementById(id).textContent = `${timeLabels[index]}:`;
+    // Time labels
+    const timeIds = ["pre1weekLabel", "pre2weeksLabel", "pre1monthLabel",
+                    "pre3monthsLabel", "pre1yearLabel", "pre5yearsLabel",
+                    "post1weekLabel", "post2weeksLabel", "post1monthLabel",
+                    "post3monthsLabel", "post1yearLabel", "post5yearsLabel"];
+    timeIds.forEach((id, index) => {
+      const labelIndex = index % 6;
+      document.getElementById(id).textContent = `${t.timeLabels[labelIndex]}:`;
     });
 
+    // Placeholders
     document.querySelectorAll('.discounting-form input[type="number"]').forEach(input => {
       input.placeholder = t.placeholders.discount;
     });
+
+    // Test interface
+    playBtn.textContent = t.playAudio;
+    replayBtn.textContent = t.replayAudio;
+    submitBtn.textContent = t.submitAnswer;
+    document.getElementById("answerLabel").textContent = t.answerLabel;
+    document.getElementById("resultsTitle").textContent = t.resultsTitle;
+    thankYouMsgElem.textContent = t.thankYouMsg;
+    document.getElementById("additionalDataLabel").textContent = t.additionalDataLabel;
+    document.getElementById("firstTimeTitle").textContent = t.resultsTitle;
+    document.getElementById("firstTimeText").textContent = t.firstTimeQuestion;
+    document.getElementById("firstTimeYes").textContent = t.firstTimeYes;
+    document.getElementById("firstTimeNo").textContent = t.firstTimeNo;
   }
 
-  // Rest of the JavaScript remains the same with proper DOM handling
-  // Ensure all discounting form elements are properly referenced
-  // and transitions between sections work correctly
+  function populateSexOptions(options) {
+    const select = document.getElementById("sex");
+    select.innerHTML = options.map(opt => 
+      `<option value="${opt === options[0] ? "" : opt}">${opt}</option>`
+    ).join("");
+  }
 
-  // Initialize with proper translations
-  window.onload = function() {
-    applyTranslations();
-    populateSexOptions(translations.en.sexOptions);
-  };
+  function handleDemographicsSubmit(e) {
+    e.preventDefault();
+    demographics = {
+      name: document.getElementById("name").value.trim(),
+      age: document.getElementById("age").value,
+      sex: document.getElementById("sex").value,
+      additionalData: document.getElementById("additionalData").value.trim(),
+      language: selectedLanguage
+    };
+    demographicsDiv.classList.add("hidden");
+    instructionsPage.classList.remove("hidden");
+  }
+
+  function handleDiscountingPreSubmit(e) {
+    e.preventDefault();
+    discountingPreData = {
+      "1week": document.getElementById("pre1week").value,
+      "2weeks": document.getElementById("pre2weeks").value,
+      "1month": document.getElementById("pre1month").value,
+      "3months": document.getElementById("pre3months").value,
+      "1year": document.getElementById("pre1year").value,
+      "5years": document.getElementById("pre5years").value
+    };
+    discountingPreDiv.classList.add("hidden");
+    testContainer.classList.remove("hidden");
+    startQuestion();
+  }
+
+  function handleDiscountingPostSubmit(e) {
+    e.preventDefault();
+    discountingPostData = {
+      "1week": document.getElementById("post1week").value,
+      "2weeks": document.getElementById("post2weeks").value,
+      "1month": document.getElementById("post1month").value,
+      "3months": document.getElementById("post3months").value,
+      "1year": document.getElementById("post1year").value,
+      "5years": document.getElementById("post5years").value
+    };
+    discountingPostDiv.classList.add("hidden");
+    firstTimeContainerEl.classList.remove("hidden");
+  }
+
+  function handlePlayAudio() {
+    const currentQ = questions[currentQuestionIndex];
+    const audioPath = selectedLanguage === "en" ? currentQ.audio : currentQ.audio.replace(".mp3", "r.mp3");
+    stopAudio();
+    currentAudio = new Audio(audioPath);
+    currentAudio.play()
+      .then(() => {
+        playBtn.disabled = true;
+        currentAudio.addEventListener("ended", () => {
+          replayBtn.disabled = false;
+          submitBtn.disabled = false;
+          answerInput.disabled = false;
+          startHiddenTimer();
+        });
+      })
+      .catch(err => console.error("Audio playback failed:", err));
+  }
+
+  function handleReplay() {
+    if (!currentAudio || replayUsed) return;
+    replayUsed = true;
+    replayBtn.disabled = true;
+    currentAudio.currentTime = 0;
+    currentAudio.play();
+  }
+
+  function handleSubmitAnswer() {
+    clearInterval(timerInterval);
+    const userAnswer = parseInt(answerInput.value) || null;
+    const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+    testResults.answers.push({
+      questionNumber: currentQuestionIndex + 1,
+      givenAnswer: userAnswer,
+      correctAnswer: correctAnswer,
+      isCorrect: userAnswer === correctAnswer
+    });
+    nextBtn.classList.remove("hidden");
+    nextBtn.textContent = currentQuestionIndex === questions.length - 1 
+      ? translations[selectedLanguage].showResults 
+      : translations[selectedLanguage].nextQuestion;
+  }
+
+  function handleNextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      resetQuestionUI();
+      startQuestion();
+    } else {
+      testContainer.classList.add("hidden");
+      discountingPostDiv.classList.remove("hidden");
+    }
+  }
+
+  function handleFirstTimeResponse(response) {
+    demographics.firstTime = response;
+    showResults();
+  }
+
+  // Utility Functions
+  function startHiddenTimer() {
+    let remaining = questionTime;
+    timerInterval = setInterval(() => {
+      if (--remaining <= 0) {
+        clearInterval(timerInterval);
+        handleSubmitAnswer();
+      }
+    }, 1000);
+  }
+
+  function resetQuestionUI() {
+    playBtn.disabled = false;
+    replayBtn.disabled = true;
+    submitBtn.disabled = true;
+    answerInput.disabled = true;
+    nextBtn.classList.add("hidden");
+    answerInput.value = "";
+    replayUsed = false;
+    qCounter.textContent = `${translations[selectedLanguage].questionCounter} ${currentQuestionIndex + 1} ${translations[selectedLanguage].ofWord} ${questions.length}`;
+  }
+
+  function stopAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+    }
+  }
+
+  function showResults() {
+    const score = testResults.answers.filter(a => a.isCorrect).length;
+    scoreDisplay.textContent = `${score} ${translations[selectedLanguage].ofWord} ${questions.length}`;
+    firstTimeContainerEl.classList.add("hidden");
+    resultContainer.classList.remove("hidden");
+    
+    const finalData = {
+      demographics: demographics,
+      discountingPre: discountingPreData,
+      discountingPost: discountingPostData,
+      answers: testResults.answers,
+      score: score,
+      timestamp: new Date().toISOString()
+    };
+    sendData(finalData);
+  }
+
+  function sendData(data) {
+    fetch(googleScriptURL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).catch(err => console.error("Data submission error:", err));
+  }
+
+  // Initialize
+  applyTranslations();
+  populateSexOptions(translations.en.sexOptions);
 </script>
 </body>
 </html>
