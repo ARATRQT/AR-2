@@ -118,7 +118,7 @@
     <button id="beginTestBtn">Begin Test</button>
   </div>
   
-  <!-- Discounting Pre-Test Screen -->
+  <!-- Discounting Pre-Test Screen (for $1000) -->
   <div id="discountingPre" class="container hidden">
     <h2 id="discountingPreTitle"></h2>
     <p id="discountingPreText"></p>
@@ -162,7 +162,7 @@
     </div>
   </div>
   
-  <!-- Discounting Post-Test Screen -->
+  <!-- Discounting Post-Test Screen (for $2500) -->
   <div id="discountingPost" class="container hidden">
     <h2 id="discountingPostTitle"></h2>
     <p id="discountingPostText"></p>
@@ -396,7 +396,6 @@
     document.getElementById("discountingPostTitle").textContent = "Almost Done";
     document.getElementById("discountingPostText").innerHTML = "Imagine you are offered <strong>$2500</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
     
-    // Set Play/Repeat button texts and others
     playBtn.textContent = t.playAudio;
     replayBtn.textContent = t.replayAudio;
     submitBtn.textContent = t.submitAnswer;
@@ -445,10 +444,11 @@
   /* Instructions & Flow */
   beginTestBtn.addEventListener("click", () => {
     instructionsPage.classList.add("hidden");
+    // Show discounting pre-test form (for $1000) BEFORE arithmetic test
     discountingPre.classList.remove("hidden");
   });
   
-  /* Discounting Pre-Test Form */
+  /* Discounting Pre-Test Form Handler */
   discountingPreForm.addEventListener("submit", (e) => {
     e.preventDefault();
     discountingPre = {
@@ -499,7 +499,7 @@
     if (currentQuestionIndex < questions.length) {
       startQuestion();
     } else {
-      // After arithmetic test, show discounting post-test form
+      // After arithmetic test, show discounting post-test form (for $2500)
       testContainer.classList.add("hidden");
       discountingPost.classList.remove("hidden");
     }
@@ -608,7 +608,7 @@
     }
   }
   
-  /* Discounting Post-Test Form */
+  /* Discounting Post-Test Form Handler */
   discountingPostForm.addEventListener("submit", (e) => {
     e.preventDefault();
     discountingPost = {
