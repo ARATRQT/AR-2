@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Arithmetic Test</title>
-  
   <!-- Google Font (Poppins) -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-  
   <style>
     /* Basic reset */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,8 +19,10 @@
     }
     main { max-width: 800px; margin: 0 auto; padding: 20px; }
     .container {
-      background-color: #f9f9f9; border-radius: 10px;
-      padding: 20px; margin-bottom: 20px;
+      background-color: #f9f9f9; 
+      border-radius: 10px;
+      padding: 20px; 
+      margin-bottom: 20px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     h2 { margin-bottom: 15px; color: #32CD32; }
@@ -41,36 +41,28 @@
     }
     button:hover { background-color: #2cab2c; }
     button:disabled { background-color: #ccc; cursor: not-allowed; }
-    .red-btn { background-color: #e60000 !important; }
-    .red-btn:hover { background-color: #cc0000 !important; }
     .hidden { display: none; }
-    /* Disabled language buttons styling */
+    /* Language button styling */
     .lang-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
     .coming-soon { font-size: 0.8rem; color: #999; }
-    #answerInput:disabled { background-color: #f0f0f0; }
-    @media (max-width: 600px) {
-      main { padding: 10px; }
-      input[type="number"], input[type="text"], select { width: 100%; }
-      button { padding: 10px 16px; font-size: 0.9rem; }
-    }
+    /* Extra styling for discounting forms */
+    .discounting-form label { font-weight: 600; margin-top: 10px; }
+    .discounting-form input { margin-bottom: 15px; }
     /* Button size adjustments */
     #playBtn, #replayBtn, #submitBtn {
       min-width: 120px;
       padding: 12px 20px;
     }
-    /* Extra styling for discounting game */
-    .discounting-form label {
-      font-weight: 600;
-      margin-top: 10px;
-    }
-    .discounting-form input {
-      margin-bottom: 15px;
+    @media (max-width: 600px) {
+      main { padding: 10px; }
+      input, select { width: 100%; }
+      button { padding: 10px 16px; font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
 <main>
-  <!-- Language Selection Screen -->
+  <!-- 1. Language Selection Screen -->
   <div id="languageSelection" class="container">
     <h2 id="langTitle">Select Language</h2>
     <button id="btnEnglish">English</button>
@@ -83,7 +75,7 @@
     <button id="btnChinese" class="lang-btn" disabled>中文 <span class="coming-soon">(Coming soon!)</span></button>
   </div>
   
-  <!-- Demographics Form -->
+  <!-- 2. Demographics Form -->
   <div id="demographics" class="container hidden">
     <h2 id="demoTitle">Please enter your details</h2>
     <form id="demoForm">
@@ -101,7 +93,7 @@
     </form>
   </div>
   
-  <!-- Instructions Page -->
+  <!-- 3. Instructions Page -->
   <div id="instructionsPage" class="container hidden">
     <h2 id="instrTitle">Instructions</h2>
     <p id="instrText">
@@ -118,7 +110,7 @@
     <button id="beginTestBtn">Begin Test</button>
   </div>
   
-  <!-- Discounting Pre-Test Screen (for $1000) -->
+  <!-- 4. Discounting Pre-Test Screen (for $1000) -->
   <div id="discountingPre" class="container hidden">
     <h2 id="discountingPreTitle"></h2>
     <p id="discountingPreText"></p>
@@ -145,7 +137,7 @@
     </form>
   </div>
   
-  <!-- Test Interface -->
+  <!-- 5. Arithmetic Test Interface -->
   <div id="testContainer" class="container hidden">
     <div id="questionSection" class="question">
       <p id="qCounter" style="font-weight:600;"></p>
@@ -162,7 +154,7 @@
     </div>
   </div>
   
-  <!-- Discounting Post-Test Screen (for $2500) -->
+  <!-- 6. Discounting Post-Test Screen (for $2500) -->
   <div id="discountingPost" class="container hidden">
     <h2 id="discountingPostTitle"></h2>
     <p id="discountingPostText"></p>
@@ -189,7 +181,7 @@
     </form>
   </div>
   
-  <!-- First-Time Screen -->
+  <!-- 7. First-Time Screen -->
   <div id="firstTimeContainer" class="container hidden">
     <h2 id="firstTimeTitle">Additional Information</h2>
     <p id="firstTimeText">Is this your first time taking this test?</p>
@@ -197,7 +189,7 @@
     <button id="firstTimeNo"></button>
   </div>
   
-  <!-- Results Screen -->
+  <!-- 8. Results Screen -->
   <div id="resultContainer" class="container hidden">
     <h2 id="resultsTitle">Your Results</h2>
     <p id="scoreDisplay"></p>
@@ -388,11 +380,11 @@
     instrText5El.textContent = t.instrText5;
     beginTestBtn.textContent = t.beginTest;
     
-    // Discounting Pre-Test Screen texts
+    // Discounting Pre-Test texts
     document.getElementById("discountingPreTitle").textContent = "Please complete the following";
     document.getElementById("discountingPreText").innerHTML = "Imagine you are offered <strong>$1000</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
     
-    // Discounting Post-Test Screen texts
+    // Discounting Post-Test texts
     document.getElementById("discountingPostTitle").textContent = "Almost Done";
     document.getElementById("discountingPostText").innerHTML = "Imagine you are offered <strong>$2500</strong> today.<br>Please indicate the minimum amount you would require if you were to receive the money after the following delays.";
     
@@ -444,7 +436,7 @@
   /* Instructions & Flow */
   beginTestBtn.addEventListener("click", () => {
     instructionsPage.classList.add("hidden");
-    // Show discounting pre-test form (for $1000) BEFORE arithmetic test
+    // Show discounting pre-test (for $1000) before arithmetic test
     discountingPre.classList.remove("hidden");
   });
   
@@ -488,7 +480,6 @@
   });
   
   nextBtn.addEventListener("click", () => {
-    // Re-enable Play button for next question
     playBtn.disabled = false;
     replayBtn.disabled = true;
     submitBtn.disabled = true;
@@ -499,7 +490,7 @@
     if (currentQuestionIndex < questions.length) {
       startQuestion();
     } else {
-      // After arithmetic test, show discounting post-test form (for $2500)
+      // After arithmetic test, show discounting post-test (for $2500)
       testContainer.classList.add("hidden");
       discountingPost.classList.remove("hidden");
     }
@@ -529,7 +520,7 @@
     // Update question counter
     qCounter.textContent = `${t.questionCounter} ${currentQuestionIndex + 1} ${t.ofWord} ${questions.length}`;
     
-    // Prepare audio path (use language-specific file if not English)
+    // Prepare audio path (language-specific if needed)
     const currentQ = questions[currentQuestionIndex];
     let audioPath = currentQ.audio;
     if (selectedLanguage !== "en") {
@@ -539,7 +530,7 @@
     stopAudio();
     currentAudio = new Audio(audioPath);
     
-    // Set up Play button handler (for initial playback)
+    // Set up Play button handler for initial playback (no auto-play)
     playBtn.onclick = () => {
       currentAudio.play().then(() => {
         playBtn.disabled = true;
@@ -547,8 +538,8 @@
         console.error("Playback failed:", error);
       });
     };
-  
-    // When audio finishes, enable replay and answer submission; start timer.
+    
+    // When audio ends, enable replay and answer input, start timer.
     const handleAudioEnd = () => {
       if (!hasCompletedInitialPlayback) {
         hasCompletedInitialPlayback = true;
@@ -560,11 +551,11 @@
       }
       currentAudio.removeEventListener("ended", handleAudioEnd);
     };
-  
-    currentAudio.addEventListener('ended', handleAudioEnd);
+    
+    currentAudio.addEventListener("ended", handleAudioEnd);
   }
   
-  // Hidden 30-second timer for each question
+  // Hidden 30-second timer
   function startHiddenTimer() {
     let remaining = questionTime;
     timerInterval = setInterval(() => {
@@ -591,15 +582,11 @@
       isCorrect: isCorrect
     });
     const t = translations[selectedLanguage];
-    if (currentQuestionIndex === questions.length - 1) {
-      nextBtn.textContent = t.showResults;
-    } else {
-      nextBtn.textContent = t.nextQuestion;
-    }
+    nextBtn.textContent = (currentQuestionIndex === questions.length - 1) ? t.showResults : t.nextQuestion;
     nextBtn.classList.remove("hidden");
   }
   
-  // Stop currently playing audio
+  // Stop audio playback
   function stopAudio() {
     if (currentAudio) {
       currentAudio.pause();
