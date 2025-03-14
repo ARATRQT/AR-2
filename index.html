@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arithmetic Test</title>
+  
+  <!-- Google Font (Poppins) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  
+  <style>
+    /* Basic reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #333;
+      padding: 10px;
+      text-align: center;
+    }
+    main { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .container {
+      background-color: #f9f9f9; border-radius: 10px;
+      padding: 20px; margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 { margin-bottom: 15px; color: #32CD32; }
+    label { display: block; margin: 10px 0 5px; font-weight: 600; }
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 80%; max-width: 300px; padding: 8px; margin-bottom: 10px;
+      border: 1px solid #ccc; border-radius: 5px; text-align: center;
+    }
+    button {
+      background-color: #32CD32; color: #fff; border: none;
+      border-radius: 5px; padding: 12px 20px; font-size: 1rem;
+      cursor: pointer; margin: 10px 5px;
+      transition: background-color 0.3s;
+    }
+    button:hover { background-color: #2cab2c; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    .red-btn { background-color: #e60000 !important; }
+    .red-btn:hover { background-color: #cc0000 !important; }
+    .hidden { display: none; }
+    /* Disabled language buttons styling */
+    .lang-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+    .coming-soon { font-size: 0.8rem; color: #999; }
+    #answerInput:disabled { background-color: #f0f0f0; }
+    @media (max-width: 600px) {
+      main { padding: 10px; }
+      input[type="number"], input[type="text"], select { width: 100%; }
+      button { padding: 10px 16px; font-size: 0.9rem; }
+    }
+    #playBtn, #replayBtn, #submitBtn {
+      min-width: 120px;
+      padding: 12px 20px;
+    }
+    /* Mobile touch targets */
+    @media (max-width: 600px) {
+      #playBtn, #replayBtn, #submitBtn {
+        padding: 12px 16px;
+        margin: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <!-- Language Selection Screen -->
+  <div id="languageSelection" class="container">
+    <h2 id="langTitle">Select Language</h2>
+    <button id="btnEnglish">English</button>
+    <button id="btnRussian">Русский</button>
+    <button id="btnTurkish" class="lang-btn" disabled>Türkçe <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnFrench" class="lang-btn" disabled>Français <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnItalian" class="lang-btn" disabled>Italiano <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnSpanish" class="lang-btn" disabled>Español <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnHindi" class="lang-btn" disabled>हिन्दी <span class="coming-soon">(Coming soon!)</span></button>
+    <button id="btnChinese" class="lang-btn" disabled>中文 <span class="coming-soon">(Coming soon!)</span></button>
+  </div>
+  
+  <!-- Demographics Form -->
+  <div id="demographics" class="container hidden">
+    <h2 id="demoTitle">Please enter your details</h2>
+    <form id="demoForm">
+      <label for="name" id="nameLabel">Name (optional):</label>
+      <input type="text" id="name" name="name" placeholder="Your name" />
+      <label for="age" id="ageLabel">Age:</label>
+      <input type="number" id="age" name="age" min="1" required />
+      <label for="sex" id="sexLabel">Sex:</label>
+      <select id="sex" name="sex" required>
+        <option value="">{{sexOption1}}</option>
+      </select>
+      <label for="additionalData" id="additionalDataLabel">Additional Data (optional):</label>
+      <input type="text" id="additionalData" name="additionalData" placeholder="Any additional information" />
+      <button type="submit" id="submitDetails">Submit Details</button>
+    </form>
+  </div>
+  
+  <!-- Instructions Page -->
+  <div id="instructionsPage" class="container hidden">
+    <h2 id="instrTitle">Instructions</h2>
+    <p id="instrText">
+      You are not allowed to use any external aids (pen, paper, calculator) or switch tabs. All correct answers are a natural number. Do not use any non-digit symbols in your answers. You will hear each arithmetic question once. After the first playback, a hidden 30‑second timer will start. Replaying the audio will not pause or reset the timer.
+    </p>
+    <p id="instrText2">
+      The test should take around 10 minutes and must be completed in one sitting.
+    </p>
+    <p id="instrText3">
+      Enter your answer and click "Submit Answer" when ready, then click "Next Question" to continue.
+    </p>
+    <p id="instrText4"><strong>Please use headphones and set your volume high for the best experience.</strong></p>
+    <p id="instrText5">(Note: The remaining time is not displayed.)</p>
+    <button id="beginTestBtn">Begin Test</button>
+  </div>
+  
+  <!-- Test Interface -->
+  <div id="testContainer" class="container hidden">
+    <div id="questionSection" class="question">
+      <p id="qCounter" style="font-weight:600;"></p>
+      <div style="margin-bottom:10px;">
+        <button id="playBtn">Play Audio</button>
+        <button id="replayBtn" disabled>Repeat Audio</button>
+        <button id="submitBtn" disabled>Submit Answer</button>
+      </div>
+      <p>
+        <label for="answerInput" id="answerLabel">Your Answer:</label>
+        <input type="number" id="answerInput" disabled />
+      </p>
+      <button id="nextBtn" class="hidden"></button>
+    </div>
+  </div>
+  
+  <!-- First-Time Screen -->
+  <div id="firstTimeContainer" class="container hidden">
+    <h2 id="firstTimeTitle">Additional Information</h2>
+    <p id="firstTimeText">Is this your first time taking this test?</p>
+    <button id="firstTimeYes"></button>
+    <button id="firstTimeNo"></button>
+  </div>
+  
+  <!-- Results Screen -->
+  <div id="resultContainer" class="container hidden">
+    <h2 id="resultsTitle">Your Results</h2>
+    <p id="scoreDisplay"></p>
+    <p id="thankYouMsg"></p>
+  </div>
+</main>
+
+<script>
+  /* Global Variables & Translations */
+  const googleScriptURL = "https://script.google.com/macros/s/AKfycbzMPeMupVjyPQCyBqwfwuIxWg5AnDSFkHOQj1Mw52mQgWmCMa-0LNs4i8ibxrJmSF0-cQ/exec";
+  let selectedLanguage = "en";
+  const questionTime = 30;
+  let timerInterval = null;
+  let hasCompletedInitialPlayback = false;
+  let currentAudio = null;
+  let currentQuestionIndex = 0;
+  let replayUsed = false; // ensures replay is allowed only once per question
+
+  let demographics = {};
+  let testResults = { answers: [] };
+
+  // 20 Questions with answer key
+  const questions = [
+    { audio: "audio/q1.mp3", correctAnswer: 60 },
+    { audio: "audio/q2.mp3", correctAnswer: 14 },
+    { audio: "audio/q3.mp3", correctAnswer: 22 },
+    { audio: "audio/q4.mp3", correctAnswer: 24 },
+    { audio: "audio/q5.mp3", correctAnswer: 8 },
+    { audio: "audio/q6.mp3", correctAnswer: 31 },
+    { audio: "audio/q7.mp3", correctAnswer: 21 },
+    { audio: "audio/q8.mp3", correctAnswer: 180 },
+    { audio: "audio/q9.mp3", correctAnswer: 20 },
+    { audio: "audio/q10.mp3", correctAnswer: 40 },
+    { audio: "audio/q11.mp3", correctAnswer: 35 },
+    { audio: "audio/q12.mp3", correctAnswer: 160 },
+    { audio: "audio/q13.mp3", correctAnswer: 63 },
+    { audio: "audio/q14.mp3", correctAnswer: 140 },
+    { audio: "audio/q15.mp3", correctAnswer: 378 },
+    { audio: "audio/q16.mp3", correctAnswer: 900 },
+    { audio: "audio/q17.mp3", correctAnswer: 662 },
+    { audio: "audio/q18.mp3", correctAnswer: 268 },
+    { audio: "audio/q19.mp3", correctAnswer: 111 },
+    { audio: "audio/q20.mp3", correctAnswer: 17500 }
+  ];
+  
+  // Translation strings
+  const translations = {
+    en: {
+      langTitle: "Select Language",
+      demoTitle: "Please enter your details",
+      nameLabel: "Name (optional):",
+      ageLabel: "Age:",
+      sexLabel: "Sex:",
+      sexOptions: ["--Select--", "Female", "Male", "Other"],
+      submitDetails: "Submit Details",
+      instrTitle: "Instructions",
+      instrText: "You are not allowed to use any external aids (pen, paper, calculator) or switch tabs. All correct answers are a natural number. Do not use any non-digit symbols in your answers. You will hear each arithmetic question once. After the first playback, a hidden 30‑second timer will start. Replaying the audio will not pause or reset the timer.",
+      instrText2: "The test should take around 10 minutes and must be completed in one sitting.",
+      instrText3: "Enter your answer and click \"Submit Answer\" when ready, then click \"Next Question\" to continue.",
+      instrText4: "Please use headphones and set your volume high for the best experience.",
+      instrText5: "(Note: The remaining time is not displayed.)",
+      beginTest: "Begin Test",
+      playAudio: "Play Audio",
+      replayAudio: "Repeat Audio",
+      submitAnswer: "Submit Answer",
+      nextQuestion: "Next Question",
+      showResults: "Show Results",
+      questionCounter: "Question",
+      answerLabel: "Your Answer:",
+      resultsTitle: "Your Results",
+      thankYouMsg: "Thank you for taking the test!",
+      resultLine: "Your result:",
+      ofWord: "of",
+      additionalDataLabel: "Additional Data (optional):"
+    },
+    ru: {
+      langTitle: "Выберите язык",
+      demoTitle: "Пожалуйста, введите ваши данные",
+      nameLabel: "Имя (необязательно):",
+      ageLabel: "Возраст:",
+      sexLabel: "Пол:",
+      sexOptions: ["--Выберите--", "Женский", "Мужской", "Другое"],
+      submitDetails: "Отправить данные",
+      instrTitle: "Инструкции",
+      instrText: "Вы услышите каждый арифметический вопрос один раз. После первого воспроизведения начнется скрытый 30-секундный таймер. Повторное прослушивание не останавливает и не сбрасывает таймер.",
+      instrText2: "Вам запрещено использовать внешние приспособления (ручку, бумагу, калькулятор) или переключаться между вкладками. Тест должен занимать примерно 10 минут и проходить за один присест.",
+      instrText3: "Введите ответ и нажмите «Отправить ответ», затем — «Следующий вопрос» для продолжения.",
+      instrText4: "Пожалуйста, используйте наушники и увеличьте громкость для лучшего восприятия.",
+      instrText5: "(Обратите внимание: оставшееся время не отображается.)",
+      beginTest: "Начать тест",
+      playAudio: "Воспроизвести аудио",
+      replayAudio: "Повторить аудио",
+      submitAnswer: "Отправить ответ",
+      nextQuestion: "Следующий вопрос",
+      showResults: "Показать результаты",
+      questionCounter: "Вопрос",
+      answerLabel: "Ваш ответ:",
+      resultsTitle: "Ваши результаты",
+      thankYouMsg: "Спасибо за участие в тесте!",
+      resultLine: "Ваш результат:",
+      ofWord: "из",
+      additionalDataLabel: "Дополнительные данные (необязательно):"
+    }
+  };
+  
+  /* DOM Element References */
+  const languageSelection = document.getElementById("languageSelection");
+  const btnEnglish = document.getElementById("btnEnglish");
+  const btnRussian = document.getElementById("btnRussian");
+  
+  const demographicsDiv = document.getElementById("demographics");
+  const demoForm = document.getElementById("demoForm");
+  
+  const instructionsPage = document.getElementById("instructionsPage");
+  const beginTestBtn = document.getElementById("beginTestBtn");
+  
+  const testContainer = document.getElementById("testContainer");
+  const qCounter = document.getElementById("qCounter");
+  const replayBtn = document.getElementById("replayBtn");
+  const submitBtn = document.getElementById("submitBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const answerInput = document.getElementById("answerInput");
+  
+  const firstTimeContainerEl = document.getElementById("firstTimeContainer");
+  const firstTimeTitle = document.getElementById("firstTimeTitle");
+  const firstTimeText = document.getElementById("firstTimeText");
+  const firstTimeYes = document.getElementById("firstTimeYes");
+  const firstTimeNo = document.getElementById("firstTimeNo");
+  
+  const resultContainer = document.getElementById("resultContainer");
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  const thankYouMsgElem = document.getElementById("thankYouMsg");
+  
+  const langTitle = document.getElementById("langTitle");
+  const demoTitle = document.getElementById("demoTitle");
+  const nameLabel = document.getElementById("nameLabel");
+  const ageLabel = document.getElementById("ageLabel");
+  const sexLabel = document.getElementById("sexLabel");
+  const instrTitle = document.getElementById("instrTitle");
+  const instrTextEl = document.getElementById("instrText");
+  const instrText2El = document.getElementById("instrText2");
+  const instrText3El = document.getElementById("instrText3");
+  const instrText4El = document.getElementById("instrText4");
+  const instrText5El = document.getElementById("instrText5");
+  const answerLabelElem = document.getElementById("answerLabel");
+  const resultsTitleElem = document.getElementById("resultsTitle");
+  
+  /* Language Selection Handlers */
+  btnEnglish.addEventListener("click", () => {
+    selectedLanguage = "en";
+    applyTranslations();
+    languageSelection.classList.add("hidden");
+    demographicsDiv.classList.remove("hidden");
+    populateSexOptions(translations.en.sexOptions);
+  });
+  
+  btnRussian.addEventListener("click", () => {
+    selectedLanguage = "ru";
+    applyTranslations();
+    languageSelection.classList.add("hidden");
+    demographicsDiv.classList.remove("hidden");
+    populateSexOptions(translations.ru.sexOptions);
+  });
+  
+  function applyTranslations() {
+    const t = translations[selectedLanguage];
+    langTitle.textContent = t.langTitle;
+    demoTitle.textContent = t.demoTitle;
+    nameLabel.textContent = t.nameLabel;
+    ageLabel.textContent = t.ageLabel;
+    sexLabel.textContent = t.sexLabel;
+    document.querySelector("#demoForm button[type='submit']").textContent = t.submitDetails;
+    instrTitle.textContent = t.instrTitle;
+    instrTextEl.textContent = t.instrText;
+    instrText2El.textContent = t.instrText2;
+    instrText3El.textContent = t.instrText3;
+    instrText4El.innerHTML = "<strong>" + t.instrText4 + "</strong>";
+    instrText5El.textContent = t.instrText5;
+    beginTestBtn.textContent = t.beginTest;
+    
+    document.getElementById('playBtn').textContent = t.playAudio;
+    submitBtn.textContent = t.submitAnswer;
+    // The next button text is set later per question
+    
+    answerLabelElem.textContent = t.answerLabel;
+    resultsTitleElem.textContent = t.resultsTitle;
+    thankYouMsgElem.textContent = t.thankYouMsg;
+    
+    // First-time screen texts
+    firstTimeTitle.textContent = t.resultsTitle;
+    if (selectedLanguage === "ru") {
+      firstTimeText.textContent = "Это ваш первый раз, когда вы проходите этот тест?";
+      firstTimeYes.textContent = "Да";
+      firstTimeNo.textContent = "Нет";
+    } else {
+      firstTimeText.textContent = "Is this your first time taking this test?";
+      firstTimeYes.textContent = "Yes";
+      firstTimeNo.textContent = "No";
+    }
+    const additionalDataLabel = document.getElementById("additionalDataLabel");
+    if (additionalDataLabel) additionalDataLabel.textContent = t.additionalDataLabel;
+  }
+  
+  function populateSexOptions(optionsArray) {
+    const selectElem = document.getElementById("sex");
+    selectElem.innerHTML = "";
+    optionsArray.forEach(opt => {
+      const option = document.createElement("option");
+      option.value = (opt === optionsArray[0]) ? "" : opt;
+      option.textContent = opt;
+      selectElem.appendChild(option);
+    });
+  }
+  
+  /* Demographics Form Handler */
+  demoForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    demographics.name = document.getElementById("name").value.trim();
+    demographics.age = document.getElementById("age").value;
+    demographics.sex = document.getElementById("sex").value;
+    demographics.additionalData = document.getElementById("additionalData").value.trim();
+    demographics.language = selectedLanguage;
+    demographicsDiv.classList.add("hidden");
+    instructionsPage.classList.remove("hidden");
+  });
+  
+  /* Instructions & Test Flow */
+  beginTestBtn.addEventListener("click", () => {
+    instructionsPage.classList.add("hidden");
+    testContainer.classList.remove("hidden");
+    startQuestion();
+  });
+  
+  /* Global Replay Button Handler (only allows one replay per question) */
+  replayBtn.addEventListener("click", () => {
+    if (currentAudio && !replayUsed) {
+      replayUsed = true;
+      replayBtn.disabled = true;
+      // Ensure the audio is fully reset:
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio.load();
+      currentAudio.play().catch(error => {
+        console.error("Playback failed:", error);
+        replayBtn.disabled = false;
+      });
+    }
+  });
+  
+  submitBtn.addEventListener("click", () => {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    recordAnswer();
+  });
+  
+  nextBtn.addEventListener("click", () => {
+    document.getElementById('playBtn').disabled = false;
+    replayBtn.disabled = true;
+    submitBtn.disabled = true;
+    answerInput.disabled = true;
+    stopAudio();
+    nextBtn.classList.add("hidden");
+    currentQuestionIndex++;
+  
+    if (currentQuestionIndex < questions.length) {
+      startQuestion();
+    } else {
+      showFirstTimeScreen();
+    }
+  });
+  
+  /* Test Functions */
+  function startQuestion() {
+    hasCompletedInitialPlayback = false;
+    replayUsed = false;
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    const t = translations[selectedLanguage];
+    const playBtn = document.getElementById('playBtn');
+    
+    // Reset UI elements
+    playBtn.disabled = false;
+    replayBtn.disabled = true;
+    submitBtn.disabled = true;
+    answerInput.disabled = true;
+    nextBtn.classList.add("hidden");
+    answerInput.value = "";
+    
+    // Set the replay button text (ensuring proper language on every question)
+    replayBtn.textContent = t.replayAudio;
+    
+    // Update question counter
+    qCounter.textContent = `${t.questionCounter} ${currentQuestionIndex + 1} ${t.ofWord} ${questions.length}`;
+  
+    // Initialize audio path (use language-specific file if not English)
+    const currentQ = questions[currentQuestionIndex];
+    let audioPath = currentQ.audio;
+    if (selectedLanguage !== "en") {
+      audioPath = audioPath.replace(".mp3", "r.mp3");
+    }
+    
+    stopAudio();
+    currentAudio = new Audio(audioPath);
+    
+    // Set up Play button handler (for initial playback)
+    playBtn.onclick = () => {
+      currentAudio.play().then(() => {
+        playBtn.disabled = true;
+      }).catch(error => {
+        console.error("Playback failed:", error);
+      });
+    };
+  
+    // Audio completion handler: after first playback, enable replay and answer submission, start timer.
+    const handleAudioEnd = () => {
+      if (!hasCompletedInitialPlayback) {
+        hasCompletedInitialPlayback = true;
+        replayBtn.disabled = false;
+        submitBtn.disabled = false;
+        answerInput.disabled = false;
+        // Update replay button text to the correct translation
+        replayBtn.textContent = t.replayAudio;
+        startHiddenTimer();
+      }
+    };
+  
+    currentAudio.addEventListener('ended', handleAudioEnd);
+  }
+  
+  // Hidden 30-second timer
+  function startHiddenTimer() {
+    let remaining = questionTime;
+    timerInterval = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        recordAnswer();
+      }
+    }, 1000);
+  }
+  
+  function recordAnswer() {
+    answerInput.disabled = true;
+    submitBtn.disabled = true;
+    let userAnswer = answerInput.value.trim();
+    userAnswer = userAnswer === "" ? null : Number(userAnswer);
+    const currentQ = questions[currentQuestionIndex];
+    const isCorrect = (userAnswer !== null && userAnswer === currentQ.correctAnswer);
+    testResults.answers.push({
+      questionNumber: currentQuestionIndex + 1,
+      givenAnswer: userAnswer,
+      correctAnswer: currentQ.correctAnswer,
+      isCorrect: isCorrect
+    });
+    // Set Next button text based on question count
+    const t = translations[selectedLanguage];
+    if (currentQuestionIndex === questions.length - 1) {
+      nextBtn.textContent = t.showResults;
+    } else {
+      nextBtn.textContent = t.nextQuestion;
+    }
+    nextBtn.classList.remove("hidden");
+  }
+  
+  // Stop currently playing audio
+  function stopAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+    }
+  }
+  
+  function showFirstTimeScreen() {
+    testContainer.classList.add("hidden");
+    firstTimeContainerEl.classList.remove("hidden");
+  }
+  
+  firstTimeYes.addEventListener("click", () => {
+    demographics.firstTime = "yes";
+    showResults();
+  });
+  firstTimeNo.addEventListener("click", () => {
+    demographics.firstTime = "no";
+    showResults();
+  });
+  
+  function showResults() {
+    stopAudio();
+    firstTimeContainerEl.classList.add("hidden");
+    const score = testResults.answers.reduce((acc, curr) => acc + (curr.isCorrect ? 1 : 0), 0);
+    const t = translations[selectedLanguage];
+    scoreDisplay.textContent = `${score} ${t.ofWord} ${questions.length}`;
+    resultContainer.classList.remove("hidden");
+    
+    const finalData = {
+      demographics: demographics,
+      answers: testResults.answers,
+      score: score,
+      timestamp: new Date().toISOString()
+    };
+    sendData(finalData);
+  }
+  
+  function sendData(data) {
+    fetch(googleScriptURL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    .then(() => console.log("Data sent successfully!"))
+    .catch((error) => console.error("Error sending data:", error));
+  }
+</script>
+</body>
+</html>
